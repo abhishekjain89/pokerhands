@@ -1,0 +1,1 @@
+This java project, calculates the rank/priority of a poker hand consisting of 5 cards. RoyalFlush has the highest prioroty for example. It then converts the priority into a percentile.
