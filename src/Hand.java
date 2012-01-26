@@ -4,6 +4,14 @@ import java.util.ArrayList;
 public class Hand implements Comparable<Hand>{
 	
 	ArrayList<Card> cards = new ArrayList<Card>();
+	int[] savedVal = null;
+	public int[] getVal(){
+		
+		if(savedVal==null){
+			savedVal = this.Value();
+		}
+		return savedVal;
+	}
 	
 	public Card largest(){
 		int val=0;
@@ -58,9 +66,9 @@ public class Hand implements Comparable<Hand>{
 		
 		return suit;
 	}
-	
+	int groupValue = 0;
 	public int GroupCount(int size){
-		
+		groupValue=0;
 		int[] count = new int[15];
 		
 		for(int i=0;i<15;i++)
@@ -73,8 +81,10 @@ public class Hand implements Comparable<Hand>{
 		int groupCount = 0;
 		
 		for(int i=0;i<15;i++){
-			if(count[i]==size)
+			if(count[i]==size){
 				groupCount++;
+				if(i>groupValue) groupValue=i;
+			}
 		}
 		
 		return groupCount;
@@ -111,9 +121,7 @@ public class Hand implements Comparable<Hand>{
 	}
 	
 	public boolean isTrips(){
-		int suit = this.largestSuit();
-		int size = this.suitCount(suit);
-		if(size>=3) return true;
+		if(this.GroupCount(3)==1) return true;
 		return false;
 	}
 	
@@ -134,7 +142,11 @@ public class Hand implements Comparable<Hand>{
 	}
 	
 	public boolean isFullHouse(){
-		if(this.PictureCount()==5) return true;
+		if(this.GroupCount(3)==1 && this.GroupCount(2)==1) {
+			this.GroupCount(3);
+			return true;
+		}
+		
 		return false;
 	}
 	
@@ -153,25 +165,32 @@ public class Hand implements Comparable<Hand>{
 		return false;
 	}
 	
-	int Value(){
-		int value = 0;
-		if(this.isRoyalFlush()) value+=102400;
-		if(this.isStraightFlush()) value+=51200;
-		if(this.isQuads()) value+=25600;
-		if(this.isFullHouse()) value+=12800;
-		if(this.isFlush()) value+=6400;
-		if(this.isStraight()) value+=3200;
-		if(this.isTrips()) value+=1600;
-		if(this.isTwoPair()) value+=800;
-		if(this.isOnePair()) value+=200;
-		value+=this.largest().getValue();
+	public int[] Value(){
+		int[] value = new int[10];
+		
+		for(int i=0;i<10;i++)
+			value[i]=0;
+		
+		if(this.isRoyalFlush()) value[0] = this.largest().value;
+		if(this.isStraightFlush()) value[1] = this.largest().value;
+		if(this.isQuads()) value[2] = groupValue;
+		if(this.isFullHouse()) value[3] = groupValue;
+		if(this.isFlush()) value[4] = this.largest().value;
+		if(this.isStraight()) value[5] = this.largest().value;
+		if(this.isTrips()) value[6] = groupValue;
+		if(this.isTwoPair()) value[7] = groupValue;
+		if(this.isOnePair()) value[8] = groupValue;
+		value[9]=this.largest().getValue();
 		return value;	
 	}
 
 	@Override
 	public int compareTo(Hand arg0) {
-		if(this.Value()>arg0.Value()) return 1;
-		else if(this.Value()<arg0.Value()) return -1;
+		
+		for(int i=0;i<10;i++){
+			if(getVal()[i]>arg0.getVal()[i]) return 1;
+			else if(getVal()[i]<arg0.getVal()[i]) return -1;
+		}
 		return 0;
 	}
 	
@@ -182,6 +201,15 @@ public class Hand implements Comparable<Hand>{
 			ret += c.toString()+" ";
 		}
 		
+		return ret;
+	}
+	
+	public String ValueToString(){
+		String ret = "";
+		int[] val = this.getVal();
+		for(int i=0;i<10;i++){
+			ret+=val[i]+",";
+		}
 		return ret;
 	}
 	
